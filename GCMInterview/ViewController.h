@@ -10,6 +10,6 @@
 
 @interface ViewController : UIViewController
 
-
+-(void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator;
 @end
 
