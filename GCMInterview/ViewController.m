@@ -15,22 +15,21 @@
 
 @interface ViewController ()
 
-
+#define APP_ID "1127706020607554"
+#define ACCESS_TOKEN "1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"
+#define NUMBER_OF_ACCOUNTS 50
 
 
 @property (strong, nonatomic) IBOutlet UIButton *loginButton;
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
-@property BOOL *stillProcessingAcconts;
-@property id waitForAccountsToFinishProcesssing;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.stillProcessingAcconts = false;
-    self.waitForAccountsToFinishProcesssing = [[NSCondition alloc] init];
-     self.loginButton = [[FBSDKLoginButton alloc] init];
+
+    self.loginButton = [[FBSDKLoginButton alloc] init];
     // Optional: Place the button in the center of your view.
     
     
@@ -48,6 +47,24 @@
     
 
 }
+
+
+-(IBAction)testAccessToken:(id)sender{
+    
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:@"/"APP_ID"/accounts"
+                                  parameters:[NSMutableDictionary dictionaryWithObject:@ACCESS_TOKEN forKey:@"access_token"]
+                                  HTTPMethod:@"GET"];
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        NSLog(@"RESULT: %@", result);
+        NSLog(@"ERROR: %@", error);
+    }];
+}
+
+
+
 -(IBAction)loginButtonPressed:(id)sender{
     NSLog(@"Login button pressed");
     FBSDKLoginManager *login = [[FBSDKLoginManager alloc] init];
@@ -84,7 +101,7 @@
 }
 
 -(IBAction)createTestUser:(id)sender{
-    NSString *urlString = @"https://graph.facebook.com/1127706020607554/accounts/test-users";
+    NSString *urlString = @"https://graph.facebook.com/"APP_ID"/accounts/test-users";
     NSURL *testUserUrl = [NSURL URLWithString:urlString];
     NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
     [testUserRequest setHTTPMethod:@"POST"];
@@ -108,8 +125,8 @@
 -(IBAction) deleteAllTestUsers:(id)sender  {
     
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                      initWithGraphPath:@"/1127706020607554/accounts"
-                                      parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"}
+                                      initWithGraphPath:@"/"APP_ID"/accounts"
+                                      parameters:@{@"access_token": @ACCESS_TOKEN, @"limit":@"500"}
                                       HTTPMethod:@"GET"];
         [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                               id result,
@@ -157,24 +174,17 @@
                                               id result,
                                               NSError *error) {
             // Handle the result
+            NSLog(@"%@",error);
         }];
     }
     
 }
 
 - (IBAction)doFriendRequest:(id)sender {
-    [self.waitForAccountsToFinishProcesssing lock];
+
     NSString *rootURL = @"/1127706020607554/accounts";
     NSMutableSet *accumulator = [[NSMutableSet alloc] init];
-    dispatch_queue_t friendQueue = dispatch_queue_create("Friend Queue",NULL);
-    dispatch_async(friendQueue, ^{
-        self.stillProcessingAcconts = true;
-        [self doFriendRequestHelper:rootURL : accumulator];
-    });
-    while(self.stillProcessingAcconts){
-        [self.waitForAccountsToFinishProcesssing wait];
-    }
-    [self.waitForAccountsToFinishProcesssing unlock];
+
 
     NSLog(@"%@", accumulator);
     NSArray *accountIds = [accumulator allObjects];
@@ -227,20 +237,24 @@
  of the accountID's for this app.
  **/
 - (void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator  {
-    NSLog(@"%@", accumulator);
+    NSLog(@"In FriendRequestHelper%@", accumulator);
     
     FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                   initWithGraphPath:url
-                                  parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"}
+                                  parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng",@"fields": @"id, acces_token"}
                                   HTTPMethod:@"GET"];
+
     
     [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                           id result,
                                           NSError *error) {
-         NSLog(@"%@", error);
+        //NSLog(@"%@", result);
+        //NSLog(@"%@", error);
+
         NSArray *items = [result objectForKey:@"data"];
         NSString *nextURL = [[result objectForKey:@"paging"] objectForKey:@"next"];
-        [self.waitForAccountsToFinishProcesssing lock];
+        
+
         for(id account in items){
             TestUserAccount *testUserAccount = [[TestUserAccount alloc] init];
             testUserAccount.uid = [account objectForKey:@"id"];
@@ -251,10 +265,10 @@
         
         //Base case
         if(nextURL == NULL){
-            self.stillProcessingAcconts =false;
-            [self.waitForAccountsToFinishProcesssing signal];
-            [self.waitForAccountsToFinishProcesssing unlock];
             
+            
+            
+
             return;
         }
         
@@ -264,8 +278,9 @@
                                              nextURL.length - prefix.length);
         NSString *fixedURL = [nextURL substringWithRange:substringRange];
         
-        [self.waitForAccountsToFinishProcesssing unlock];
+        //[self.waitForAccountsToFinishProcesssing unlock];
         //Recursive call
+
         [self doFriendRequestHelper :fixedURL :accumulator];
         
         

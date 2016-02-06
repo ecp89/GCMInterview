@@ -52,7 +52,7 @@
                                     <rect key="frame" x="20" y="99" width="46" height="30"/>
                                 </variation>
                                 <connections>
-                                    <action selector="generateRandomNetwork:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ldO-c2-9SD"/>
+                                    <action selector="createTestUser:" destination="BYZ-38-t0r" eventType="touchUpInside" id="xBe-sw-xQh"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xnf-AR-Mrp">
@@ -63,6 +63,16 @@
                                 </variation>
                                 <connections>
                                     <action selector="doFriendRequest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cXL-Ne-d2X"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EhR-6o-iEZ">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <variation key="widthClass=compact" fixedFrame="YES">
+                                    <rect key="frame" x="163" y="340" width="46" height="30"/>
+                                </variation>
+                                <connections>
+                                    <action selector="testAccessToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SJp-Pr-ljy"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0W3-EG-PwZ">
@@ -84,6 +94,7 @@
                                 <exclude reference="B1I-bD-IB6"/>
                                 <exclude reference="igP-rH-6mf"/>
                                 <exclude reference="xnf-AR-Mrp"/>
+                                <exclude reference="EhR-6o-iEZ"/>
                                 <exclude reference="0W3-EG-PwZ"/>
                             </mask>
                         </variation>
@@ -94,6 +105,7 @@
                                 <include reference="B1I-bD-IB6"/>
                                 <include reference="igP-rH-6mf"/>
                                 <include reference="xnf-AR-Mrp"/>
+                                <include reference="EhR-6o-iEZ"/>
                                 <include reference="0W3-EG-PwZ"/>
                             </mask>
                         </variation>
