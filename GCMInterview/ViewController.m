@@ -32,7 +32,6 @@
     self.loginButton = [[FBSDKLoginButton alloc] init];
     // Optional: Place the button in the center of your view.
     
-    
     if ([FBSDKAccessToken currentAccessToken]) {
         [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me" parameters:@{@"fields": @"id, name"}]
          startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
@@ -46,21 +45,6 @@
     
     
 
-}
-
-
--(IBAction)testAccessToken:(id)sender{
-    
-    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                  initWithGraphPath:@"/"APP_ID"/accounts"
-                                  parameters:[NSMutableDictionary dictionaryWithObject:@ACCESS_TOKEN forKey:@"access_token"]
-                                  HTTPMethod:@"GET"];
-    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
-                                          id result,
-                                          NSError *error) {
-        NSLog(@"RESULT: %@", result);
-        NSLog(@"ERROR: %@", error);
-    }];
 }
 
 
@@ -87,40 +71,8 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (IBAction)pressedButton:(id)sender {
-    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                  initWithGraphPath:@"/me/taggable_friends"
-                                  parameters:nil
-                                  HTTPMethod:@"GET"];
-    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
-                                          id result,
-                                          NSError *error) {
-         NSLog(@"%@", result);
-        
-     }];
-}
 
--(IBAction)createTestUser:(id)sender{
-    NSString *urlString = @"https://graph.facebook.com/"APP_ID"/accounts/test-users";
-    NSURL *testUserUrl = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
-    [testUserRequest setHTTPMethod:@"POST"];
-    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
-    NSString *bodyString = @"installed=true&permissions=user_friends&access_token=1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng";
-    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
-    [testUserRequest setHTTPBody:bodyData];
-    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
-                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
-                               NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse*)response;
-                               if(!error){
-                                   NSLog(@"Response to test user creation: %@",httpResponse);
-                               } else {
-                                   NSLog(@"ERROR to test user creation: %@", error);
-                               }
-                           }
-     ];
 
-}
 
 -(IBAction) deleteAllTestUsers:(id)sender  {
     
@@ -139,7 +91,7 @@
                 NSString *apiCall =[NSString stringWithFormat:@"/%@", [account objectForKey:@"id"]];
                 FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                               initWithGraphPath:apiCall
-                                              parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"}
+                                              parameters:@{@"access_token": @ACCESS_TOKEN}
                                               HTTPMethod:@"DELETE"];
                 [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                                       id result,
@@ -159,22 +111,19 @@
 }
 
 -(IBAction) generateRandomNetwork:(id)sender  {
-    for (int i = 0; i<50; i++) {
+    for (int i = 0; i<NUMBER_OF_ACCOUNTS; i++) {
         NSDictionary *params = @{
                                  @"installed": @"true",
                                  @"permissions":@"user_friends",
-                                 @"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng",
+                                 @"access_token": @ACCESS_TOKEN,
                                  };
-        /* make the API call */
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                      initWithGraphPath:@"/1127706020607554/accounts/test-users"
+                                      initWithGraphPath:@"/"APP_ID"/accounts/test-users"
                                       parameters:params
                                       HTTPMethod:@"POST"];
         [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                               id result,
                                               NSError *error) {
-            // Handle the result
-            NSLog(@"%@",error);
         }];
     }
     
@@ -182,33 +131,56 @@
 
 - (IBAction)doFriendRequest:(id)sender {
 
-    NSString *rootURL = @"/1127706020607554/accounts";
-    NSMutableSet *accumulator = [[NSMutableSet alloc] init];
-
-
-    NSLog(@"%@", accumulator);
-    NSArray *accountIds = [accumulator allObjects];
-    unsigned long length = [accountIds count];
-    for(int i = 0; i <length; i++){
-        NSMutableSet *alreadyFriendsWith = [[NSMutableSet alloc] init];
-        [alreadyFriendsWith addObject:[[NSNumber alloc] initWithInt:i]];
-        //Make everyone have 10 different friends
-        for(int j = 0; j < 10; j++) {
-            int randomIndex = [self getRandomIndex: alreadyFriendsWith :length ];
-            TestUserAccount *user1 = [accountIds objectAtIndex:i];
-            TestUserAccount *user2 = [accountIds objectAtIndex:randomIndex];
-            [self doFriendPosting:user1 :user2];
-            [self doFriendPosting:user2 :user1];
-            [alreadyFriendsWith addObject:[[NSNumber alloc] initWithInt:randomIndex]];
+    NSString *rootURL = @"/"APP_ID"/accounts";
+    
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:rootURL
+                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token"}
+                                  HTTPMethod:@"GET"];
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        NSMutableSet *accumulator = [[NSMutableSet alloc] init];
+        //NSLog(@"%@", result);
+        //NSLog(@"%@", error);
+        
+        NSArray *items = [result objectForKey:@"data"];
+        
+        for(id account in items){
+            TestUserAccount *testUserAccount = [[TestUserAccount alloc] init];
+            testUserAccount.uid = [account objectForKey:@"id"];
+            testUserAccount.access_token = [account objectForKey:@"access_token"];
             
+            [accumulator addObject: testUserAccount];
         }
-    }
+        
+        NSLog(@"%@", accumulator);
+        NSArray *accountIds = [accumulator allObjects];
+        unsigned long length = [accountIds count];
+        for(int i = 0; i <length; i++){
+            NSMutableSet *alreadyFriendsWith = [[NSMutableSet alloc] init];
+            [alreadyFriendsWith addObject:[[NSNumber alloc] initWithInt:i]];
+            //Make everyone have 10 different friends
+            for(int j = 0; j < 10; j++) {
+                int randomIndex = [self getRandomIndex: alreadyFriendsWith :length ];
+                TestUserAccount *user1 = [accountIds objectAtIndex:i];
+                TestUserAccount *user2 = [accountIds objectAtIndex:randomIndex];
+                [self doFriendPosting:user1 :user2];
+                [self doFriendPosting:user2 :user1];
+                [alreadyFriendsWith addObject:[[NSNumber alloc] initWithInt:randomIndex]];
+                
+            }
+        }
+    }];
+    
+    
+    
    
    
 }
 
 -(void) doFriendPosting: (TestUserAccount *) user1 : (TestUserAccount *)user2{
-    NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/accounts/%@", user1.uid, user2.uid];
+    NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/friends/%@", user1.uid, user2.uid];
     NSURL *testUserUrl = [NSURL URLWithString:urlString];
     NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
     [testUserRequest setHTTPMethod:@"POST"];
@@ -287,6 +259,31 @@
     }];
 
 }
+
+/*------------------------------------- DEPRECATED CODE FOR REF ------------------------------------------*/
+
+-(IBAction)createTestUser:(id)sender{
+    NSString *urlString = @"https://graph.facebook.com/"APP_ID"/accounts/test-users";
+    NSURL *testUserUrl = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
+    [testUserRequest setHTTPMethod:@"POST"];
+    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
+    NSString *bodyString = @"installed=true&permissions=user_friends&access_token=1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng";
+    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
+    [testUserRequest setHTTPBody:bodyData];
+    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
+                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
+                               NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse*)response;
+                               if(!error){
+                                   NSLog(@"Response to test user creation: %@",httpResponse);
+                               } else {
+                                   NSLog(@"ERROR to test user creation: %@", error);
+                               }
+                           }
+     ];
+    
+}
+
 
 
 @end
