@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <UITableViewDataSource, UITableViewDataSource>
 
--(void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator;
+
 @end
 

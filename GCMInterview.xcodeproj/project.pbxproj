@@ -19,6 +19,8 @@
 		E3D345FF1C60027C007FCDBC /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3D345FE1C60027C007FCDBC /* FBSDKCoreKit.framework */; };
 		E3D346011C600507007FCDBC /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3D346001C600507007FCDBC /* FBSDKLoginKit.framework */; };
 		E3FF38CC1C6556D00063EB54 /* TestUserAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */; };
+		E3FF38CF1C6696140063EB54 /* MutualFriendCell.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FF38CE1C6696140063EB54 /* MutualFriendCell.m */; };
+		E3FF38D21C66982F0063EB54 /* FriendTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +62,10 @@
 		E3D346001C600507007FCDBC /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		E3FF38CA1C6556D00063EB54 /* TestUserAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestUserAccount.h; sourceTree = "<group>"; };
 		E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestUserAccount.m; sourceTree = "<group>"; };
+		E3FF38CD1C6696140063EB54 /* MutualFriendCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MutualFriendCell.h; sourceTree = "<group>"; };
+		E3FF38CE1C6696140063EB54 /* MutualFriendCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MutualFriendCell.m; sourceTree = "<group>"; };
+		E3FF38D01C66982F0063EB54 /* FriendTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendTableViewController.h; sourceTree = "<group>"; };
+		E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendTableViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +126,10 @@
 				E3D345CB1C5FFE17007FCDBC /* ViewController.m */,
 				E3FF38CA1C6556D00063EB54 /* TestUserAccount.h */,
 				E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */,
+				E3FF38CD1C6696140063EB54 /* MutualFriendCell.h */,
+				E3FF38D01C66982F0063EB54 /* FriendTableViewController.h */,
+				E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */,
+				E3FF38CE1C6696140063EB54 /* MutualFriendCell.m */,
 				E3D345CD1C5FFE17007FCDBC /* Main.storyboard */,
 				E3D345D31C5FFE17007FCDBC /* Assets.xcassets */,
 				E3D345D51C5FFE17007FCDBC /* LaunchScreen.storyboard */,
@@ -218,6 +228,9 @@
 		E3D345B91C5FFE17007FCDBC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				KnownAssetTags = (
+					1,
+				);
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = "Eric Pass";
 				TargetAttributes = {
@@ -288,7 +301,9 @@
 			files = (
 				E3FF38CC1C6556D00063EB54 /* TestUserAccount.m in Sources */,
 				E3D345CC1C5FFE17007FCDBC /* ViewController.m in Sources */,
+				E3FF38D21C66982F0063EB54 /* FriendTableViewController.m in Sources */,
 				E3D345D21C5FFE17007FCDBC /* GCMInterview.xcdatamodeld in Sources */,
+				E3FF38CF1C6696140063EB54 /* MutualFriendCell.m in Sources */,
 				E3D345C91C5FFE17007FCDBC /* AppDelegate.m in Sources */,
 				E3D345C61C5FFE17007FCDBC /* main.m in Sources */,
 			);

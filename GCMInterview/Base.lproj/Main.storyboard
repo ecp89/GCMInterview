@@ -45,6 +45,16 @@
                                     <rect key="frame" x="133" y="58" width="215" height="21"/>
                                 </variation>
                             </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0W3-EG-PwZ">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Delete"/>
+                                <variation key="widthClass=compact" fixedFrame="YES">
+                                    <rect key="frame" x="198" y="99" width="45" height="30"/>
+                                </variation>
+                                <connections>
+                                    <action selector="deleteAllTestUsers:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eyK-8h-ghF"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="igP-rH-6mf">
                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                 <state key="normal" title="Create"/>
@@ -52,39 +62,40 @@
                                     <rect key="frame" x="20" y="99" width="46" height="30"/>
                                 </variation>
                                 <connections>
-                                    <action selector="generateRandomNetwork:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5HQ-DM-jDc"/>
+                                    <action selector="createTestUsers:" destination="BYZ-38-t0r" eventType="touchUpInside" id="ocG-fj-Ofm"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xnf-AR-Mrp">
                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                <state key="normal" title="doFriendRequest"/>
+                                <state key="normal" title="Friend"/>
                                 <variation key="widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="127" y="267" width="118" height="30"/>
+                                    <rect key="frame" x="104" y="99" width="44" height="30"/>
                                 </variation>
                                 <connections>
                                     <action selector="doFriendRequest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="cXL-Ne-d2X"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EhR-6o-iEZ">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3WW-fY-6jc">
                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                <state key="normal" title="Button"/>
+                                <state key="normal" title="Get Friends"/>
                                 <variation key="widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="163" y="340" width="46" height="30"/>
+                                    <rect key="frame" x="273" y="99" width="80" height="30"/>
                                 </variation>
                                 <connections>
-                                    <action selector="testAccessToken:" destination="BYZ-38-t0r" eventType="touchUpInside" id="SJp-Pr-ljy"/>
+                                    <action selector="getFriendsPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="M6G-wq-RNR"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0W3-EG-PwZ">
-                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                <state key="normal" title="Delete"/>
+                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="xAr-QF-InY">
+                                <rect key="frame" x="0.0" y="0.0" width="240" height="128"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <variation key="widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="308" y="99" width="45" height="30"/>
+                                    <rect key="frame" x="27" y="131" width="333" height="449"/>
                                 </variation>
                                 <connections>
-                                    <action selector="deleteAllTestUsers:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eyK-8h-ghF"/>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="VZZ-ih-x2c"/>
+                                    <outlet property="delegate" destination="BYZ-38-t0r" id="6CP-e1-pN0"/>
                                 </connections>
-                            </button>
+                            </tableView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <variation key="default">
@@ -92,10 +103,11 @@
                                 <exclude reference="Aoi-Ps-Ahf"/>
                                 <exclude reference="nr2-Qo-lsd"/>
                                 <exclude reference="B1I-bD-IB6"/>
+                                <exclude reference="0W3-EG-PwZ"/>
                                 <exclude reference="igP-rH-6mf"/>
                                 <exclude reference="xnf-AR-Mrp"/>
-                                <exclude reference="EhR-6o-iEZ"/>
-                                <exclude reference="0W3-EG-PwZ"/>
+                                <exclude reference="3WW-fY-6jc"/>
+                                <exclude reference="xAr-QF-InY"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
@@ -103,15 +115,17 @@
                                 <include reference="Aoi-Ps-Ahf"/>
                                 <include reference="nr2-Qo-lsd"/>
                                 <include reference="B1I-bD-IB6"/>
+                                <include reference="0W3-EG-PwZ"/>
                                 <include reference="igP-rH-6mf"/>
                                 <include reference="xnf-AR-Mrp"/>
-                                <include reference="EhR-6o-iEZ"/>
-                                <include reference="0W3-EG-PwZ"/>
+                                <include reference="3WW-fY-6jc"/>
+                                <include reference="xAr-QF-InY"/>
                             </mask>
                         </variation>
                     </view>
                     <connections>
                         <outlet property="loginButton" destination="Aoi-Ps-Ahf" id="frB-wk-w9U"/>
+                        <outlet property="myTableView" destination="xAr-QF-InY" id="mMO-aZ-bmu"/>
                         <outlet property="nameLabel" destination="B1I-bD-IB6" id="jq9-FH-s1D"/>
                     </connections>
                 </viewController>

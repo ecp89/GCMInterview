@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import "FriendTableViewController.h"
+#import "MutualFriendCell.h"
 #import "TestUserAccount.h"
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKLoginKit/FBSDKLoginKit.h>
@@ -18,10 +20,14 @@
 #define APP_ID "1127706020607554"
 #define ACCESS_TOKEN "1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"
 #define NUMBER_OF_ACCOUNTS 50
+#define LIMIT_FOR_FB_REQUEST "500"
+#define NUMBER_OF_FRIENDS 10
 
 
+@property (strong, nonatomic) IBOutlet UITableView *myTableView;
 @property (strong, nonatomic) IBOutlet UIButton *loginButton;
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
+@property (strong, nonatomic) NSMutableArray *friends;
 @end
 
 @implementation ViewController
@@ -41,13 +47,17 @@
              }
          }];
     }
+
+
+    
+   
+
+
     
     
     
 
 }
-
-
 
 -(IBAction)loginButtonPressed:(id)sender{
     NSLog(@"Login button pressed");
@@ -71,23 +81,23 @@
     // Dispose of any resources that can be recreated.
 }
 
-
-
-
+/**
+ * Method that deletes all the test users for this application. If there are more than
+ * 500 it will only delete the first 500, so you might have to call it multiple times.
+ **/
 -(IBAction) deleteAllTestUsers:(id)sender  {
     
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                       initWithGraphPath:@"/"APP_ID"/accounts"
-                                      parameters:@{@"access_token": @ACCESS_TOKEN, @"limit":@"500"}
+                                      parameters:@{@"access_token": @ACCESS_TOKEN, @"limit":@LIMIT_FOR_FB_REQUEST}
                                       HTTPMethod:@"GET"];
+    
         [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                               id result,
                                               NSError *error) {
-            NSLog(@"%@", result);
-            NSLog(@"%@", error);
-            
             NSArray *items = [result objectForKey:@"data"];
             for(id account in items){
+                //The api call to delete a test user is simply their account id with DELETE HTTPMethod
                 NSString *apiCall =[NSString stringWithFormat:@"/%@", [account objectForKey:@"id"]];
                 FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                               initWithGraphPath:apiCall
@@ -96,22 +106,23 @@
                 [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                                       id result,
                                                       NSError *error) {
-                    NSLog(@"%@", result);
-                    NSLog(@"%@", error);
-                
                 }];
             }
             
-            
-            
         }];
-    
 
 
 }
 
--(IBAction) generateRandomNetwork:(id)sender  {
+/**
+ * This method creates NUMBER_OF_ACCOUNTS amount of test users into the application.
+ **/
+-(IBAction) createTestUsers:(id)sender  {
     for (int i = 0; i<NUMBER_OF_ACCOUNTS; i++) {
+        //For this app to work the test users need to initilized as installed
+        //(so that they can friend one an other), have the user_friends permission
+        //so that we can see their mutual friends and the access_token to make the
+        //actuall request
         NSDictionary *params = @{
                                  @"installed": @"true",
                                  @"permissions":@"user_friends",
@@ -129,20 +140,24 @@
     
 }
 
+/**
+ * This method creates a random network of friends for the test users. It gathers all 
+ * of the accounts and for each account attempts to friend NUMBER_OF_FRIENDS different
+ * accounts.
+ **/
 - (IBAction)doFriendRequest:(id)sender {
 
     NSString *rootURL = @"/"APP_ID"/accounts";
     
     FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                   initWithGraphPath:rootURL
-                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token"}
+                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
                                   HTTPMethod:@"GET"];
     [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                           id result,
                                           NSError *error) {
         NSMutableSet *accumulator = [[NSMutableSet alloc] init];
-        //NSLog(@"%@", result);
-        //NSLog(@"%@", error);
+
         
         NSArray *items = [result objectForKey:@"data"];
         
@@ -154,14 +169,14 @@
             [accumulator addObject: testUserAccount];
         }
         
-        NSLog(@"%@", accumulator);
         NSArray *accountIds = [accumulator allObjects];
         unsigned long length = [accountIds count];
         for(int i = 0; i <length; i++){
             NSMutableSet *alreadyFriendsWith = [[NSMutableSet alloc] init];
             [alreadyFriendsWith addObject:[[NSNumber alloc] initWithInt:i]];
-            //Make everyone have 10 different friends
-            for(int j = 0; j < 10; j++) {
+            //Make everyone have NUMBER_OF_FRIENDS different friends. This might not acutally be the case
+            //Since when doing the request we might get an error.
+            for(int j = 0; j < NUMBER_OF_FRIENDS; j++) {
                 int randomIndex = [self getRandomIndex: alreadyFriendsWith :length ];
                 TestUserAccount *user1 = [accountIds objectAtIndex:i];
                 TestUserAccount *user2 = [accountIds objectAtIndex:randomIndex];
@@ -178,7 +193,37 @@
    
    
 }
-
+- (IBAction)getFriendsPressed:(id)sender {
+    NSString *rootURL = @"/"APP_ID"/accounts";
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:rootURL
+                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  HTTPMethod:@"GET"];
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        NSLog(@"%@",result);
+        self.friends = [[NSMutableArray alloc]init];
+        NSArray *items = [result objectForKey:@"data"];
+        
+        for(id account in items){
+            NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+            [dict setObject:[account objectForKey:@"id"] forKey:@"uid"];
+            [self.friends addObject:dict];
+            
+        }
+        [self.myTableView reloadData];
+    }];
+    
+}
+/**
+ * This method does the acutall friending. The easiest way was to do an actuall HTTP request
+ * and to not go through the API. In order to for two test users to become friends they must both
+ * have installed the app and you must have their access tokens. You have to call
+ * https://graph.facebook.com/USER_1_ID/friends/USER_2_ID?access_token=USER_1_ACCESS_TOKEN then
+ * https://graph.facebook.com/USER_2_ID/friends/USER_1_ID?access_token=USER_2_ACCESS_TOKEN for
+ * user 1 and user 2 to become friends.
+ **/
 -(void) doFriendPosting: (TestUserAccount *) user1 : (TestUserAccount *)user2{
     NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/friends/%@", user1.uid, user2.uid];
     NSURL *testUserUrl = [NSURL URLWithString:urlString];
@@ -195,6 +240,10 @@
 
 }
 
+/**
+ * Helper method to get a random index to get another user to become friends with who
+ * they have not friended before and who is not themself.
+ **/
 -(int)getRandomIndex: (NSMutableSet *) alreadyFriendsWith : (unsigned long) length{
     int randomIndex;
     do {
@@ -204,60 +253,28 @@
     
 }
 
-/**
- Recursive method that given the accounts url populates the accumulator with all 
- of the accountID's for this app.
- **/
-- (void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator  {
-    NSLog(@"In FriendRequestHelper%@", accumulator);
-    
-    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                  initWithGraphPath:url
-                                  parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng",@"fields": @"id, acces_token"}
-                                  HTTPMethod:@"GET"];
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 1;
+}
 
-    
-    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
-                                          id result,
-                                          NSError *error) {
-        //NSLog(@"%@", result);
-        //NSLog(@"%@", error);
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    return [self.friends count];
+}
 
-        NSArray *items = [result objectForKey:@"data"];
-        NSString *nextURL = [[result objectForKey:@"paging"] objectForKey:@"next"];
-        
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+    // The header for the section is the region name -- get this from the region at the section index
+    return @"";
+}
 
-        for(id account in items){
-            TestUserAccount *testUserAccount = [[TestUserAccount alloc] init];
-            testUserAccount.uid = [account objectForKey:@"id"];
-            testUserAccount.access_token = [account objectForKey:@"access_token"];
-
-            [accumulator addObject: testUserAccount];
-        }
-        
-        //Base case
-        if(nextURL == NULL){
-            
-            
-            
-
-            return;
-        }
-        
-        //Need to strip the url of this junk so it can be used in a FBSDKGraphRequest
-        NSString *prefix = @"https://graph.facebook.com/v2.5/";
-        NSRange substringRange = NSMakeRange(prefix.length,
-                                             nextURL.length - prefix.length);
-        NSString *fixedURL = [nextURL substringWithRange:substringRange];
-        
-        //[self.waitForAccountsToFinishProcesssing unlock];
-        //Recursive call
-
-        [self doFriendRequestHelper :fixedURL :accumulator];
-        
-        
-    }];
-
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    static NSString *MyIdentifier = @"MyReuseIdentifier";
+    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault  reuseIdentifier:MyIdentifier];
+    }
+    NSDictionary *rowData = self.friends[indexPath.row];
+    cell.textLabel.text = rowData[@"uid"];
+    return cell;
 }
 
 /*------------------------------------- DEPRECATED CODE FOR REF ------------------------------------------*/
@@ -284,6 +301,61 @@
     
 }
 
+/**
+ Recursive method that given the accounts url populates the accumulator with all
+ of the accountID's for this app.
+ **/
+- (void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator  {
+    NSLog(@"In FriendRequestHelper%@", accumulator);
+    
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:url
+                                  parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng",@"fields": @"id, acces_token"}
+                                  HTTPMethod:@"GET"];
+    
+    
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        //NSLog(@"%@", result);
+        //NSLog(@"%@", error);
+        
+        NSArray *items = [result objectForKey:@"data"];
+        NSString *nextURL = [[result objectForKey:@"paging"] objectForKey:@"next"];
+        
+        
+        for(id account in items){
+            TestUserAccount *testUserAccount = [[TestUserAccount alloc] init];
+            testUserAccount.uid = [account objectForKey:@"id"];
+            testUserAccount.access_token = [account objectForKey:@"access_token"];
+            
+            [accumulator addObject: testUserAccount];
+        }
+        
+        //Base case
+        if(nextURL == NULL){
+            
+            
+            
+            
+            return;
+        }
+        
+        //Need to strip the url of this junk so it can be used in a FBSDKGraphRequest
+        NSString *prefix = @"https://graph.facebook.com/v2.5/";
+        NSRange substringRange = NSMakeRange(prefix.length,
+                                             nextURL.length - prefix.length);
+        NSString *fixedURL = [nextURL substringWithRange:substringRange];
+        
+        //[self.waitForAccountsToFinishProcesssing unlock];
+        //Recursive call
+        
+        [self doFriendRequestHelper :fixedURL :accumulator];
+        
+        
+    }];
+    
+}
 
 
 @end
