@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "FriendTableViewController.h"
-#import "MutualFriendCell.h"
+#import "MyMutualFriendCell.h"
 #import "TestUserAccount.h"
 #import "TestFriend.h"
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
@@ -22,14 +22,15 @@
 #define ACCESS_TOKEN "1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng"
 #define NUMBER_OF_ACCOUNTS 50
 #define LIMIT_FOR_FB_REQUEST "500"
-#define NUMBER_OF_FRIENDS 10
+#define NUMBER_OF_FRIENDS 20
 
 
 @property (strong, nonatomic) IBOutlet UITableView *myTableView;
 @property (strong, nonatomic) IBOutlet FBSDKLoginButton *loginButton;
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
-@property (strong, nonatomic) NSMutableArray *friends;
+@property (strong, nonatomic) NSMutableArray *tableData;
 @property (strong, nonatomic) NSString *currentUserToken;
+@property (strong, nonatomic) NSMutableDictionary *mutualFriendsDict;
 @end
 
 @implementation ViewController
@@ -61,8 +62,6 @@
         self.nameLabel.text = @"Some placeholder text";
     }
 }
-
-
 
 
 - (void)didReceiveMemoryWarning {
@@ -107,19 +106,23 @@
 
 }
 
+
 /**
  * This method creates NUMBER_OF_ACCOUNTS amount of test users into the application.
  **/
 -(IBAction) createTestUsers:(id)sender  {
     for (int i = 0; i<NUMBER_OF_ACCOUNTS; i++) {
+        NSString *name = [[NSString alloc] initWithFormat:@"Test User %@", [self getNameForNumber:i]];
         //For this app to work the test users need to initilized as installed
         //(so that they can friend one an other), have the user_friends permission
         //so that we can see their mutual friends and the access_token to make the
         //actuall request
         NSDictionary *params = @{
                                  @"installed": @"true",
-                                 @"permissions":@"user_friends, public_profile"
+                                 @"permissions":@"user_friends, public_profile",
+                                 @"name":name
                                  };
+        
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                       initWithGraphPath:@"/"APP_ID"/accounts/test-users"
                                       parameters:params
@@ -132,6 +135,14 @@
         }];
     }
     
+}
+
+-(NSString *) getNameForNumber:(int) i {
+    if(i<36) {
+        return [[NSString alloc] initWithFormat:@"%c",  ('a' + i%36)];
+    }
+    return [[NSString alloc] initWithFormat:@"%c%c",  ('a' + i/36), ('a' + i%36) ];
+   
 }
 
 /**
@@ -196,18 +207,21 @@
                                           id result,
                                           NSError *error) {
         NSLog(@"%@",result);
-        self.friends = [[NSMutableArray alloc]init];
+        self.tableData = [[NSMutableArray alloc]init];
         NSArray *items = [result objectForKey:@"data"];
         
         for(id account in items){
             NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
             [dict setObject:[account objectForKey:@"id"] forKey:@"uid"];
-            [self.friends addObject:dict];
+            [self.tableData addObject:dict];
             
         }
         [self.myTableView reloadData];
     }];
     
+}
+- (IBAction)testButtonPushed:(id)sender {
+    [self getAllMutualFriends];
 }
 
 /**
@@ -228,10 +242,13 @@
     }];
 }
 -(void) getAllMutualFriends {
-    NSMutableArray *friendsOfCurrentUser = [[NSMutableArray alloc]init];
+    //We are going to need a new set of data for the table view
+    self.tableData = [[NSMutableArray alloc] init];
+    NSMutableArray *unproccessedFriends = [[NSMutableArray alloc]init];
+    //Get all the friends of the current user who use the app
     FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                   initWithGraphPath:@"me/friends"
-                                  parameters:@{@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  parameters:@{@"fields": @"id, name",@"limit":@LIMIT_FOR_FB_REQUEST}
                                   tokenString:self.currentUserToken
                                   version:nil
                                   HTTPMethod:@"GET"];
@@ -239,15 +256,58 @@
                                           id result,
                                           NSError *error) {
         NSArray *items = [result objectForKey:@"data"];
+        NSLog(@"REUSLT IN GET%@",result);
         for(id account in items){
             TestFriend *friend = [[TestFriend alloc] init];
             friend.uid = [account objectForKey:@"id"];
             friend.name = [account objectForKey:@"name"];
+            [unproccessedFriends addObject:friend];
+        }
+        //Set of id's of friends we have already processed
+        NSMutableSet *processed = [[NSMutableSet alloc]init];
+        for(int i = 0; i < [unproccessedFriends count]; i++) {
+            TestFriend* currentFriend = [unproccessedFriends objectAtIndex:i];
+            NSDictionary *params = @{
+                                     @"fields": @"context.fields(mutual_friends)",
+                                     @"limit":@LIMIT_FOR_FB_REQUEST
+                                     };
+            FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                          initWithGraphPath:[[NSString alloc] initWithFormat:@"/%@", currentFriend.uid]
+                                          parameters:params
+                                          tokenString:self.currentUserToken
+                                          version:nil
+                                          HTTPMethod:@"GET"];
+            [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                                  id result,
+                                                  NSError *error) {
+                if(error){
+                    NSLog(@"Error fetching mutual friends: %@", error);
+                } else {
+                    id usefulInformation = [[result objectForKey:@"context"] objectForKey:@"mutual_friends"];
+                    int countOfMutualFriends = [[[usefulInformation objectForKey:@"summary"] objectForKey:@"total_count"] intValue];
+                    if(countOfMutualFriends > 0){
+                        NSMutableArray *mutualFriends = [[NSMutableArray alloc] init];
+                        id data = [usefulInformation objectForKey:@"data"];
+                        for(id mutualFriend in data){
+                            TestFriend *currentMutualFriend = [[TestFriend alloc] init];
+                            currentMutualFriend.uid = [mutualFriend objectForKey:@"id"];
+                            currentMutualFriend.name = [mutualFriend objectForKey:@"name"];
+                            [mutualFriends addObject:mutualFriend];
+                        }
+                        currentFriend.mutualFriends = mutualFriends;
+                        [self.tableData addObject:currentFriend];
+                        [self.myTableView reloadData];
+                        
+                    }
+                    [processed addObject:currentFriend.uid];
+                    
+                }
+            }];
+
 
         }
-        NSLog(@"%@",result);
     }];
-
+    
 }
 
 /**
@@ -268,7 +328,7 @@
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return [self.friends count];
+    return [self.tableData count];
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
@@ -278,135 +338,18 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     static NSString *MyIdentifier = @"MyReuseIdentifier";
-    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
+    MyMutualFriendCell *cell = [tableView dequeueReusableCellWithIdentifier:MyIdentifier];
     if (cell == nil) {
-        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault  reuseIdentifier:MyIdentifier];
+        NSArray *nibArray = [[NSBundle mainBundle] loadNibNamed:@"MyMutualFriendCell" owner:self options:nil];
+        cell = [nibArray objectAtIndex:0];
     }
-    NSDictionary *rowData = self.friends[indexPath.row];
-    cell.textLabel.text = rowData[@"uid"];
+    TestFriend *rowData = self.tableData[indexPath.row];
+    cell.idLabel.text = rowData.uid;
+    cell.nameLabel.text = rowData.name;
+    cell.numberOfMutualFriends.text = [[NSString alloc] initWithFormat:@"%lu", [rowData.mutualFriends count] ];
+
     return cell;
 }
 
-/*------------------------------------- DEPRECATED CODE FOR REF ------------------------------------------*/
-
--(IBAction)createTestUser:(id)sender{
-    NSString *urlString = @"https://graph.facebook.com/"APP_ID"/accounts/test-users";
-    NSURL *testUserUrl = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
-    [testUserRequest setHTTPMethod:@"POST"];
-    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
-    NSString *bodyString = @"installed=true&permissions=user_friends&access_token=1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng";
-    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
-    [testUserRequest setHTTPBody:bodyData];
-    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
-                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
-                               NSHTTPURLResponse * httpResponse = (NSHTTPURLResponse*)response;
-                               if(!error){
-                                   NSLog(@"Response to test user creation: %@",httpResponse);
-                               } else {
-                                   NSLog(@"ERROR to test user creation: %@", error);
-                               }
-                           }
-     ];
-    
-}
-
-/**
- Recursive method that given the accounts url populates the accumulator with all
- of the accountID's for this app.
- **/
-- (void)doFriendRequestHelper: (NSString*) url : (NSMutableSet *) accumulator  {
-    NSLog(@"In FriendRequestHelper%@", accumulator);
-    
-    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
-                                  initWithGraphPath:url
-                                  parameters:@{@"access_token": @"1127706020607554|Oy4CN4YXBFNVTG3K4aWAYape4Ng",@"fields": @"id, acces_token"}
-                                  HTTPMethod:@"GET"];
-    
-    
-    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
-                                          id result,
-                                          NSError *error) {
-        //NSLog(@"%@", result);
-        //NSLog(@"%@", error);
-        
-        NSArray *items = [result objectForKey:@"data"];
-        NSString *nextURL = [[result objectForKey:@"paging"] objectForKey:@"next"];
-        
-        
-        for(id account in items){
-            TestUserAccount *testUserAccount = [[TestUserAccount alloc] init];
-            testUserAccount.uid = [account objectForKey:@"id"];
-            testUserAccount.access_token = [account objectForKey:@"access_token"];
-            
-            [accumulator addObject: testUserAccount];
-        }
-        
-        //Base case
-        if(nextURL == NULL){
-            
-            
-            
-            
-            return;
-        }
-        
-        //Need to strip the url of this junk so it can be used in a FBSDKGraphRequest
-        NSString *prefix = @"https://graph.facebook.com/v2.5/";
-        NSRange substringRange = NSMakeRange(prefix.length,
-                                             nextURL.length - prefix.length);
-        NSString *fixedURL = [nextURL substringWithRange:substringRange];
-        
-        //[self.waitForAccountsToFinishProcesssing unlock];
-        //Recursive call
-        
-        [self doFriendRequestHelper :fixedURL :accumulator];
-        
-        
-    }];
-    
-}
-
--(IBAction)loginButtonPressed:(id)sender{
-    NSLog(@"Login button pressed");
-    FBSDKLoginManager *login = [[FBSDKLoginManager alloc] init];
-    [login
-     logInWithReadPermissions: @[@"user_friends",@"public_profile"]
-     fromViewController:self.view.window.rootViewController
-     handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
-         
-         if (error) {
-             NSLog(@"Process error");
-         } else if (result.isCancelled) {
-             NSLog(@"Cancelled");
-         } else {
-             
-             NSLog(@"Logged in");
-         }
-     }];
-}
-
-/**
- * This method does the acutall friending. The easiest way was to do an actuall HTTP request
- * and to not go through the API. In order to for two test users to become friends they must both
- * have installed the app and you must have their access tokens. You have to call
- * https://graph.facebook.com/USER_1_ID/friends/USER_2_ID?access_token=USER_1_ACCESS_TOKEN then
- * https://graph.facebook.com/USER_2_ID/friends/USER_1_ID?access_token=USER_2_ACCESS_TOKEN for
- * user 1 and user 2 to become friends.
- **/
--(void) doFriendPostingDEPRECATED: (TestUserAccount *) user1 : (TestUserAccount *)user2{
-    NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/friends/%@", user1.uid, user2.uid];
-    NSURL *testUserUrl = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
-    [testUserRequest setHTTPMethod:@"POST"];
-    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
-    NSString *bodyString = [[NSString alloc] initWithFormat:@"access_token=%@", user1.access_token];
-    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
-    [testUserRequest setHTTPBody:bodyData];
-    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
-                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
-                               NSLog(@"%@", response);
-                           }];
-}
 
 @end

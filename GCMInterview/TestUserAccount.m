@@ -9,6 +9,5 @@
 #import "TestUserAccount.h"
 
 @implementation TestUserAccount
-@synthesize uid;
-@synthesize access_token;
+@synthesize uid, access_token;
 @end

@@ -72,7 +72,7 @@
                                     <rect key="frame" x="26" y="131" width="333" height="449"/>
                                 </variation>
                                 <connections>
-                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="VZZ-ih-x2c"/>
+                                    <outlet property="dataSource" destination="BYZ-38-t0r" id="Cov-YC-KLg"/>
                                     <outlet property="delegate" destination="BYZ-38-t0r" id="6CP-e1-pN0"/>
                                 </connections>
                             </tableView>
@@ -86,22 +86,22 @@
                                     <action selector="deleteAllTestUsers:" destination="BYZ-38-t0r" eventType="touchUpInside" id="eyK-8h-ghF"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ytv-aw-tyv">
-                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
-                                <state key="normal" title="Button"/>
-                                <variation key="widthClass=compact" fixedFrame="YES">
-                                    <rect key="frame" x="334" y="99" width="46" height="30"/>
-                                </variation>
-                                <connections>
-                                    <action selector="testMeButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="v9J-oS-aXf"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Aoi-Ps-Ahf" customClass="FBSDKLoginButton" colorLabel="IBBuiltInLabel-Blue">
                                 <rect key="frame" x="-23" y="-15" width="46" height="30"/>
                                 <color key="backgroundColor" red="0.31503179205716625" green="0.72997835875488903" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <variation key="widthClass=compact" fixedFrame="YES">
                                     <rect key="frame" x="20" y="20" width="333" height="30"/>
                                 </variation>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sqv-27-1FD">
+                                <rect key="frame" x="-23" y="-15" width="46" height="30"/>
+                                <state key="normal" title="Button"/>
+                                <variation key="widthClass=compact" fixedFrame="YES">
+                                    <rect key="frame" x="339" y="99" width="46" height="30"/>
+                                </variation>
+                                <connections>
+                                    <action selector="testButtonPushed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="KFY-Wc-flr"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -114,8 +114,8 @@
                                 <exclude reference="3WW-fY-6jc"/>
                                 <exclude reference="xAr-QF-InY"/>
                                 <exclude reference="0W3-EG-PwZ"/>
-                                <exclude reference="Ytv-aw-tyv"/>
                                 <exclude reference="Aoi-Ps-Ahf"/>
+                                <exclude reference="sqv-27-1FD"/>
                             </mask>
                         </variation>
                         <variation key="widthClass=compact">
@@ -127,14 +127,12 @@
                                 <include reference="3WW-fY-6jc"/>
                                 <include reference="xAr-QF-InY"/>
                                 <include reference="0W3-EG-PwZ"/>
-                                <include reference="Ytv-aw-tyv"/>
                                 <include reference="Aoi-Ps-Ahf"/>
+                                <include reference="sqv-27-1FD"/>
                             </mask>
                         </variation>
                     </view>
-                    <toolbarItems>
-                        <barButtonItem title="Item" id="ZwB-d9-eaY"/>
-                    </toolbarItems>
+                    <toolbarItems/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="loginButton" destination="Aoi-Ps-Ahf" id="frB-wk-w9U"/>
