@@ -10,6 +10,7 @@
 #import "FriendTableViewController.h"
 #import "MutualFriendCell.h"
 #import "TestUserAccount.h"
+#import "TestFriend.h"
 #import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <FBSDKLoginKit/FBSDKLoginKit.h>
 
@@ -25,9 +26,10 @@
 
 
 @property (strong, nonatomic) IBOutlet UITableView *myTableView;
-@property (strong, nonatomic) IBOutlet UIButton *loginButton;
+@property (strong, nonatomic) IBOutlet FBSDKLoginButton *loginButton;
 @property (strong, nonatomic) IBOutlet UILabel *nameLabel;
 @property (strong, nonatomic) NSMutableArray *friends;
+@property (strong, nonatomic) NSString *currentUserToken;
 @end
 
 @implementation ViewController
@@ -35,46 +37,33 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.loginButton = [[FBSDKLoginButton alloc] init];
-    // Optional: Place the button in the center of your view.
+    FBSDKLoginButton *loginButton = [[FBSDKLoginButton alloc] init];
+    self.loginButton.readPermissions =
+    @[@"public_profile", @"email", @"user_friends"];
+
+}
+
+-(void) viewWillAppear:(BOOL)animated{
+    NSLog(@"viewWillAppear");
+    self.currentUserToken = [FBSDKAccessToken currentAccessToken].tokenString;
+    NSLog(@"currentUserToken %@", self.currentUserToken);
     
     if ([FBSDKAccessToken currentAccessToken]) {
-        [[[FBSDKGraphRequest alloc] initWithGraphPath:@"me" parameters:@{@"fields": @"id, name"}]
+        [[[FBSDKGraphRequest alloc] initWithGraphPath:@"/me" parameters:@{@"fields": @"id, name"} tokenString:self.currentUserToken version:nil HTTPMethod:@"GET"]
          startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection, id result, NSError *error) {
-            self.nameLabel.text = [result objectForKey:@"name"] ;
+             
+             self.nameLabel.text = [result objectForKey:@"name"] ;
              if (!error) {
-                  NSLog(@"%@", result);
+                 NSLog(@"%@", result);
              }
          }];
+    } else {
+        self.nameLabel.text = @"Some placeholder text";
     }
-
-
-    
-   
-
-
-    
-    
-    
-
 }
 
--(IBAction)loginButtonPressed:(id)sender{
-    NSLog(@"Login button pressed");
-    FBSDKLoginManager *login = [[FBSDKLoginManager alloc] init];
-    [login
-     logInWithReadPermissions: @[@"user_friends"]
-     fromViewController:self
-     handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
-         if (error) {
-             NSLog(@"Process error");
-         } else if (result.isCancelled) {
-             NSLog(@"Cancelled");
-         } else {
-             NSLog(@"Logged in");
-         }
-     }];
-}
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -89,7 +78,9 @@
     
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                       initWithGraphPath:@"/"APP_ID"/accounts"
-                                      parameters:@{@"access_token": @ACCESS_TOKEN, @"limit":@LIMIT_FOR_FB_REQUEST}
+                                      parameters:@{@"limit":@LIMIT_FOR_FB_REQUEST}
+                                      tokenString:@ACCESS_TOKEN
+                                      version:nil
                                       HTTPMethod:@"GET"];
     
         [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
@@ -101,7 +92,9 @@
                 NSString *apiCall =[NSString stringWithFormat:@"/%@", [account objectForKey:@"id"]];
                 FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                               initWithGraphPath:apiCall
-                                              parameters:@{@"access_token": @ACCESS_TOKEN}
+                                              parameters:nil
+                                              tokenString:@ACCESS_TOKEN
+                                              version:nil
                                               HTTPMethod:@"DELETE"];
                 [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                                       id result,
@@ -125,12 +118,13 @@
         //actuall request
         NSDictionary *params = @{
                                  @"installed": @"true",
-                                 @"permissions":@"user_friends",
-                                 @"access_token": @ACCESS_TOKEN,
+                                 @"permissions":@"user_friends, public_profile"
                                  };
         FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                       initWithGraphPath:@"/"APP_ID"/accounts/test-users"
                                       parameters:params
+                                      tokenString:@ACCESS_TOKEN
+                                      version:nil
                                       HTTPMethod:@"POST"];
         [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                               id result,
@@ -151,7 +145,9 @@
     
     FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                   initWithGraphPath:rootURL
-                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  parameters:@{@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  tokenString:@ACCESS_TOKEN
+                                  version:nil
                                   HTTPMethod:@"GET"];
     [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                           id result,
@@ -187,17 +183,14 @@
             }
         }
     }];
-    
-    
-    
-   
-   
 }
 - (IBAction)getFriendsPressed:(id)sender {
     NSString *rootURL = @"/"APP_ID"/accounts";
     FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
                                   initWithGraphPath:rootURL
-                                  parameters:@{@"access_token": @ACCESS_TOKEN,@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  parameters:@{@"fields": @"id, access_token",@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  tokenString:@ACCESS_TOKEN
+                                  version:nil
                                   HTTPMethod:@"GET"];
     [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
                                           id result,
@@ -216,27 +209,44 @@
     }];
     
 }
+
 /**
- * This method does the acutall friending. The easiest way was to do an actuall HTTP request
- * and to not go through the API. In order to for two test users to become friends they must both
- * have installed the app and you must have their access tokens. You have to call
- * https://graph.facebook.com/USER_1_ID/friends/USER_2_ID?access_token=USER_1_ACCESS_TOKEN then
- * https://graph.facebook.com/USER_2_ID/friends/USER_1_ID?access_token=USER_2_ACCESS_TOKEN for
- * user 1 and user 2 to become friends.
+ * Could probably change this over to use batch requesting
  **/
 -(void) doFriendPosting: (TestUserAccount *) user1 : (TestUserAccount *)user2{
-    NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/friends/%@", user1.uid, user2.uid];
-    NSURL *testUserUrl = [NSURL URLWithString:urlString];
-    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
-    [testUserRequest setHTTPMethod:@"POST"];
-    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
-    NSString *bodyString = [[NSString alloc] initWithFormat:@"access_token=%@", user1.access_token];
-    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
-    [testUserRequest setHTTPBody:bodyData];
-    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
-                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
-                               NSLog(@"%@", response);
-                           }];
+    NSString *requestString = [[NSString alloc] initWithFormat:@"/%@/friends/%@", user1.uid, user2.uid];
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:requestString
+                                  parameters:nil
+                                  tokenString:user1.access_token
+                                  version:nil
+                                  HTTPMethod:@"POST"];
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        NSLog(@"%@",result);
+    }];
+}
+-(void) getAllMutualFriends {
+    NSMutableArray *friendsOfCurrentUser = [[NSMutableArray alloc]init];
+    FBSDKGraphRequest *request = [[FBSDKGraphRequest alloc]
+                                  initWithGraphPath:@"me/friends"
+                                  parameters:@{@"limit":@LIMIT_FOR_FB_REQUEST}
+                                  tokenString:self.currentUserToken
+                                  version:nil
+                                  HTTPMethod:@"GET"];
+    [request startWithCompletionHandler:^(FBSDKGraphRequestConnection *connection,
+                                          id result,
+                                          NSError *error) {
+        NSArray *items = [result objectForKey:@"data"];
+        for(id account in items){
+            TestFriend *friend = [[TestFriend alloc] init];
+            friend.uid = [account objectForKey:@"id"];
+            friend.name = [account objectForKey:@"name"];
+
+        }
+        NSLog(@"%@",result);
+    }];
 
 }
 
@@ -357,5 +367,46 @@
     
 }
 
+-(IBAction)loginButtonPressed:(id)sender{
+    NSLog(@"Login button pressed");
+    FBSDKLoginManager *login = [[FBSDKLoginManager alloc] init];
+    [login
+     logInWithReadPermissions: @[@"user_friends",@"public_profile"]
+     fromViewController:self.view.window.rootViewController
+     handler:^(FBSDKLoginManagerLoginResult *result, NSError *error) {
+         
+         if (error) {
+             NSLog(@"Process error");
+         } else if (result.isCancelled) {
+             NSLog(@"Cancelled");
+         } else {
+             
+             NSLog(@"Logged in");
+         }
+     }];
+}
+
+/**
+ * This method does the acutall friending. The easiest way was to do an actuall HTTP request
+ * and to not go through the API. In order to for two test users to become friends they must both
+ * have installed the app and you must have their access tokens. You have to call
+ * https://graph.facebook.com/USER_1_ID/friends/USER_2_ID?access_token=USER_1_ACCESS_TOKEN then
+ * https://graph.facebook.com/USER_2_ID/friends/USER_1_ID?access_token=USER_2_ACCESS_TOKEN for
+ * user 1 and user 2 to become friends.
+ **/
+-(void) doFriendPostingDEPRECATED: (TestUserAccount *) user1 : (TestUserAccount *)user2{
+    NSString *urlString = [[NSString alloc] initWithFormat:@"https://graph.facebook.com/%@/friends/%@", user1.uid, user2.uid];
+    NSURL *testUserUrl = [NSURL URLWithString:urlString];
+    NSMutableURLRequest *testUserRequest = [[NSMutableURLRequest alloc] initWithURL:testUserUrl];
+    [testUserRequest setHTTPMethod:@"POST"];
+    [testUserRequest addValue:@"text/plain" forHTTPHeaderField:@"content-type"];
+    NSString *bodyString = [[NSString alloc] initWithFormat:@"access_token=%@", user1.access_token];
+    NSData *bodyData = [bodyString dataUsingEncoding:NSUTF8StringEncoding];
+    [testUserRequest setHTTPBody:bodyData];
+    [NSURLConnection sendAsynchronousRequest:testUserRequest queue:[NSOperationQueue currentQueue]
+                           completionHandler: ^(NSURLResponse * response, NSData * data, NSError * error) {
+                               NSLog(@"%@", response);
+                           }];
+}
 
 @end

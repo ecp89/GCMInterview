@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E34D34B61C67C42F0083A0F1 /* TestFriend.m in Sources */ = {isa = PBXBuildFile; fileRef = E34D34B41C67C42F0083A0F1 /* TestFriend.m */; };
 		E3D345C61C5FFE17007FCDBC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D345C51C5FFE17007FCDBC /* main.m */; };
 		E3D345C91C5FFE17007FCDBC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D345C81C5FFE17007FCDBC /* AppDelegate.m */; };
 		E3D345CC1C5FFE17007FCDBC /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3D345CB1C5FFE17007FCDBC /* ViewController.m */; };
@@ -41,6 +42,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E34D34B41C67C42F0083A0F1 /* TestFriend.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestFriend.m; sourceTree = "<group>"; };
+		E34D34B51C67C42F0083A0F1 /* TestFriend.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestFriend.h; sourceTree = "<group>"; };
 		E3D345C11C5FFE17007FCDBC /* GCMInterview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GCMInterview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3D345C51C5FFE17007FCDBC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E3D345C71C5FFE17007FCDBC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -120,6 +123,8 @@
 		E3D345C31C5FFE17007FCDBC /* GCMInterview */ = {
 			isa = PBXGroup;
 			children = (
+				E34D34B41C67C42F0083A0F1 /* TestFriend.m */,
+				E34D34B51C67C42F0083A0F1 /* TestFriend.h */,
 				E3D345C71C5FFE17007FCDBC /* AppDelegate.h */,
 				E3D345C81C5FFE17007FCDBC /* AppDelegate.m */,
 				E3D345CA1C5FFE17007FCDBC /* ViewController.h */,
@@ -302,6 +307,7 @@
 				E3FF38CC1C6556D00063EB54 /* TestUserAccount.m in Sources */,
 				E3D345CC1C5FFE17007FCDBC /* ViewController.m in Sources */,
 				E3FF38D21C66982F0063EB54 /* FriendTableViewController.m in Sources */,
+				E34D34B61C67C42F0083A0F1 /* TestFriend.m in Sources */,
 				E3D345D21C5FFE17007FCDBC /* GCMInterview.xcdatamodeld in Sources */,
 				E3FF38CF1C6696140063EB54 /* MutualFriendCell.m in Sources */,
 				E3D345C91C5FFE17007FCDBC /* AppDelegate.m in Sources */,
