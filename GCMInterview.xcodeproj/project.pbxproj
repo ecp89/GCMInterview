@@ -22,7 +22,6 @@
 		E3D345FF1C60027C007FCDBC /* FBSDKCoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3D345FE1C60027C007FCDBC /* FBSDKCoreKit.framework */; };
 		E3D346011C600507007FCDBC /* FBSDKLoginKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E3D346001C600507007FCDBC /* FBSDKLoginKit.framework */; };
 		E3FF38CC1C6556D00063EB54 /* TestUserAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */; };
-		E3FF38D21C66982F0063EB54 /* FriendTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,8 +68,6 @@
 		E3D346001C600507007FCDBC /* FBSDKLoginKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FBSDKLoginKit.framework; sourceTree = "<group>"; };
 		E3FF38CA1C6556D00063EB54 /* TestUserAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestUserAccount.h; sourceTree = "<group>"; };
 		E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestUserAccount.m; sourceTree = "<group>"; };
-		E3FF38D01C66982F0063EB54 /* FriendTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FriendTableViewController.h; sourceTree = "<group>"; };
-		E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FriendTableViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,8 +130,6 @@
 				E3D345CB1C5FFE17007FCDBC /* ViewController.m */,
 				E3FF38CA1C6556D00063EB54 /* TestUserAccount.h */,
 				E3FF38CB1C6556D00063EB54 /* TestUserAccount.m */,
-				E3FF38D01C66982F0063EB54 /* FriendTableViewController.h */,
-				E3FF38D11C66982F0063EB54 /* FriendTableViewController.m */,
 				E34D34B71C67C7D00083A0F1 /* MyMutualFriendCell.xib */,
 				E34D34B91C67CA580083A0F1 /* MyMutualFriendCell.h */,
 				E34D34BA1C67CA580083A0F1 /* MyMutualFriendCell.m */,
@@ -310,7 +305,6 @@
 			files = (
 				E3FF38CC1C6556D00063EB54 /* TestUserAccount.m in Sources */,
 				E3D345CC1C5FFE17007FCDBC /* ViewController.m in Sources */,
-				E3FF38D21C66982F0063EB54 /* FriendTableViewController.m in Sources */,
 				E34D34B61C67C42F0083A0F1 /* TestFriend.m in Sources */,
 				E3D345D21C5FFE17007FCDBC /* GCMInterview.xcdatamodeld in Sources */,
 				E34D34BB1C67CA580083A0F1 /* MyMutualFriendCell.m in Sources */,

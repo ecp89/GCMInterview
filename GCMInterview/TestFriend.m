@@ -9,7 +9,5 @@
 #import "TestFriend.h"
 
 @implementation TestFriend
-@synthesize uid;
-@synthesize name;
-@synthesize mutualFriends;
+@synthesize uid, name, mutualFriends;
 @end
