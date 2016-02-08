@@ -1,0 +1,2 @@
+# GCMInterview
+This was a porject I did to explore the Facebook API and for an interview. This uses the Facebook api to create test users, friend them in a random network and delete all the test users. Once the test users are created you can log in as a test user and then retrive a list of those test users friends who have 1 or mutual friends with the logged in user. All this is demoed in the video.
