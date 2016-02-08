@@ -47,6 +47,7 @@
 		E34D34B71C67C7D00083A0F1 /* MyMutualFriendCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MyMutualFriendCell.xib; sourceTree = "<group>"; };
 		E34D34B91C67CA580083A0F1 /* MyMutualFriendCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MyMutualFriendCell.h; sourceTree = "<group>"; };
 		E34D34BA1C67CA580083A0F1 /* MyMutualFriendCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MyMutualFriendCell.m; sourceTree = "<group>"; };
+		E34D34BC1C68F21E0083A0F1 /* GCMTut.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = GCMTut.mp4; sourceTree = "<group>"; };
 		E3D345C11C5FFE17007FCDBC /* GCMInterview.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GCMInterview.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E3D345C51C5FFE17007FCDBC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		E3D345C71C5FFE17007FCDBC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -106,6 +107,7 @@
 				E3D345E01C5FFE17007FCDBC /* GCMInterviewTests */,
 				E3D345EB1C5FFE17007FCDBC /* GCMInterviewUITests */,
 				E3D345C21C5FFE17007FCDBC /* Products */,
+				E34D34BC1C68F21E0083A0F1 /* GCMTut.mp4 */,
 			);
 			sourceTree = "<group>";
 		};
